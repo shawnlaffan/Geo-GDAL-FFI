@@ -41,7 +41,10 @@ sub DESTROY {
     Geo::GDAL::FFI::deregister_parent_ref ($$self, $self);
     #delete $Geo::GDAL::FFI::parent{$$self};
     if ($ref{$$self}) {
-        delete $ref{$$self};
+        $ref{$$self}--;
+        if ($ref{$$self} <= 0) {
+            delete $ref{$$self};
+        }
         return;
     }
     if ($Geo::GDAL::FFI::immutable{$$self}) {
@@ -176,7 +179,7 @@ sub GetGeometry {
     my $g = Geo::GDAL::FFI::OGR_G_GetGeometryRef($$self, $i);
     Geo::GDAL::FFI::register_parent_ref ($g, $self);
     #$Geo::GDAL::FFI::parent{$g} = $self;
-    $ref{$g} = 1;
+    $ref{$g}++;
     return bless \$g, 'Geo::GDAL::FFI::Geometry';
 }
 
