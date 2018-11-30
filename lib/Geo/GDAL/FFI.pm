@@ -56,7 +56,7 @@ our $Write = 1;
 
 our @errors;
 our %immutable;
-our %parent;
+my  %parent;
 
 my $instance;
 
@@ -88,6 +88,38 @@ sub error_msg {
     my $msg = join("\n", @errors);
     @errors = ();
     return $msg;
+}
+
+sub register_parent_ref {
+    my ($gdal_ref, $perl_ref) = @_;
+    my $a_ref = $parent{$gdal_ref} //= [];
+    push @$a_ref, $perl_ref;
+    return;
+}
+
+sub deregister_parent_ref {
+    my ($gdal_ref, $perl_ref) = @_;
+
+    #return if !$gdal_ref || !$perl_ref;
+
+    my $a_ref = $parent{$gdal_ref};
+    #confess "Trying to clean up empty array"
+    #  if !$a_ref;  #  possible source of leakage?
+    
+    return if !$a_ref;
+    
+    confess "Trying to clean up undef perl ref"
+      if !defined $perl_ref;
+    
+    foreach my $i (0 .. $#$a_ref) {
+        #say STDERR "P: $perl_ref";
+        #say STDERR "G: $i, $a_ref->[$i]";
+        if ($perl_ref eq ($a_ref->[$i] //'')) {
+            splice @$a_ref, $i;
+            return 1;
+        }
+    }
+    return 0;
 }
 
 our %capabilities = (

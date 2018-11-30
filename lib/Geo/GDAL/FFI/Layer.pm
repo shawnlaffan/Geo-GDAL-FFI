@@ -11,7 +11,8 @@ sub DESTROY {
     my $self = shift;
     Geo::GDAL::FFI::OGR_L_SyncToDisk($$self);
     #say STDERR "delete parent $parent{$$self}";
-    delete $Geo::GDAL::FFI::parent{$$self};
+    Geo::GDAL::FFI::deregister_parent_ref ($$self, $self);
+    #delete $Geo::GDAL::FFI::parent{$$self};
     #say STDERR "destroy $self";
 }
 

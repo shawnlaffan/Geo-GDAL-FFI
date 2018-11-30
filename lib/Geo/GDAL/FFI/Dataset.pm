@@ -78,7 +78,8 @@ sub GetBand {
     my ($self, $i) = @_;
     $i //= 1;
     my $b = Geo::GDAL::FFI::GDALGetRasterBand($$self, $i);
-    $Geo::GDAL::FFI::parent{$b} = $self;
+    Geo::GDAL::FFI::register_parent_ref ($b, $self);
+    #$Geo::GDAL::FFI::parent{$b} = $self;
     return bless \$b, 'Geo::GDAL::FFI::Band';
 }
 
@@ -96,7 +97,8 @@ sub GetLayer {
     $i //= 0;
     my $l = Geo::GDAL::FFI::isint($i) ? Geo::GDAL::FFI::GDALDatasetGetLayer($$self, $i) :
         Geo::GDAL::FFI::GDALDatasetGetLayerByName($$self, $i);
-    $Geo::GDAL::FFI::parent{$l} = $self;
+    Geo::GDAL::FFI::register_parent_ref ($l, $self);
+    #$Geo::GDAL::FFI::parent{$l} = $self;
     return bless \$l, 'Geo::GDAL::FFI::Layer';
 }
 
@@ -124,7 +126,8 @@ sub CreateLayer {
     Geo::GDAL::FFI::OSRRelease($sr) if $sr;
     my $msg = Geo::GDAL::FFI::error_msg();
     confess $msg if $msg;
-    $Geo::GDAL::FFI::parent{$l} = $self;
+    Geo::GDAL::FFI::register_parent_ref ($l, $self);
+    #$Geo::GDAL::FFI::parent{$l} = $self;
     my $layer = bless \$l, 'Geo::GDAL::FFI::Layer';
     if (exists $args->{Fields}) {
         for my $f (@{$args->{Fields}}) {
@@ -152,7 +155,8 @@ sub CopyLayer {
         my $msg = Geo::GDAL::FFI::error_msg() // "GDALDatasetCopyLayer failed.";
         confess $msg if $msg;
     }
-    $Geo::GDAL::FFI::parent{$l} = $self;
+    Geo::GDAL::FFI::register_parent_ref ($l, $self);
+    #$Geo::GDAL::FFI::parent{$l} = $self;
     return bless \$l, 'Geo::GDAL::FFI::Layer';
 }
 
