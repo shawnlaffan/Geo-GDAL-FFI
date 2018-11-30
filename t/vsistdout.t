@@ -48,7 +48,7 @@ if(1){
     $gdal->CloseWriter;
 
     my $ret = $output->output;
-    ok($ret eq
+    is($ret, 
        '{"type": "FeatureCollection",'.
        '"features": '.
        '[{ "type": "Feature", "id": 0, "properties": '.
