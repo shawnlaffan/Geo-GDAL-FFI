@@ -128,10 +128,11 @@ sub SetField {
 
 sub GetField {
     my ($self, $i, $encoding) = @_;
-    $i //= 0;
-    $i = $self->field_index($i) unless Geo::GDAL::FFI::isint($i);
     return unless $self->IsFieldSetAndNotNull($i);
-    my $d = Geo::GDAL::FFI::OGR_F_GetFieldDefnRef($$self, $i);
+    if (defined $i && !Geo::GDAL::FFI::isint($i)) {
+        $i = $self->field_index($i);
+    }
+    my $d = Geo::GDAL::FFI::OGR_F_GetFieldDefnRef($$self, $i // 0);
     my $t = $Geo::GDAL::FFI::field_types_reverse{Geo::GDAL::FFI::OGR_Fld_GetType($d)};
     if ($t =~ /^Integer64/ && $Config{use64bitint} ne 'define') {
         confess "Your Perl does not support 64 bit integers.";
@@ -183,30 +184,34 @@ sub GetField {
 
 sub IsFieldSet {
     my ($self, $i) = @_;
-    $i //= 0;
-    $i = $self->field_index($i) unless Geo::GDAL::FFI::isint($i);
-    return Geo::GDAL::FFI::OGR_F_IsFieldSet($$self, $i);
+    if (defined $i && !Geo::GDAL::FFI::isint($i)) {
+        $i = $self->field_index($i);
+    }
+    return Geo::GDAL::FFI::OGR_F_IsFieldSet($$self, $i // 0);
 }
 
 sub IsFieldNull {
     my ($self, $i) = @_;
-    $i //= 0;
-    $i = $self->field_index($i) unless Geo::GDAL::FFI::isint($i);
-    return Geo::GDAL::FFI::OGR_F_IsFieldNull($$self, $i);
+    if (defined $i && !Geo::GDAL::FFI::isint($i)) {
+        $i = $self->field_index($i);
+    }
+    return Geo::GDAL::FFI::OGR_F_IsFieldNull($$self, $i // 0);
 }
 
 sub IsFieldSetAndNotNull {
     my ($self, $i) = @_;
-    $i //= 0;
-    $i = $self->field_index($i) unless Geo::GDAL::FFI::isint($i);
-    return Geo::GDAL::FFI::OGR_F_IsFieldSetAndNotNull($$self, $i);
+    if (defined $i && !Geo::GDAL::FFI::isint($i)) {
+        $i = $self->field_index($i);
+    }
+    return Geo::GDAL::FFI::OGR_F_IsFieldSetAndNotNull($$self, $i // 0);
 }
 
 sub GetGeomField {
     my ($self, $i) = @_;
-    $i //= 0;
-    $i = $self->field_index($i, 1) unless Geo::GDAL::FFI::isint($i);
-    my $g = Geo::GDAL::FFI::OGR_F_GetGeomFieldRef($$self, $i);
+    if (defined $i && !Geo::GDAL::FFI::isint($i)) {
+        $i = $self->field_index($i);
+    }
+    my $g = Geo::GDAL::FFI::OGR_F_GetGeomFieldRef($$self, $i // 0);
     confess "No such field: $i" unless $g;
     ++$Geo::GDAL::FFI::immutable{$g};
     #say STDERR "$g immutable";
